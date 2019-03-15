@@ -45,14 +45,17 @@ class DockerRun
     end
 
     def get_base_dir
+        base_dir='C:/'
         if is_linux
-            return "#{ENV['HOME']}/DockerPlayground"
+          base_dir='/home/joaovperin'
+        elsif File.directory?("T:")
+           base_dir='T:'
         end
-        return "T:/DockerPlayground"
+        return "#{base_dir}/DockerPlayground"
     end
 
     def get_wrk_dir
-        return "#{get_base_dir}/DockerPlayground"
+        return "#{get_base_dir}/workdir"
     end
 
     def is_linux
