@@ -45,7 +45,7 @@ class DockerRun
     end
 
     def get_base_dir
-        base_dir='C:/'
+        base_dir='C:'
         if is_linux
           base_dir='/home/joaovperin'
         elsif File.directory?("T:")
