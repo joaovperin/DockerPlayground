@@ -25,7 +25,7 @@ class DockerRun
 
         # If interactive, then open sh
         if args[1] == "-it"
-            cmd_exec="-it #{ct_name} sh"
+            cmd_exec="-it #{ct_name} bash"
             #shift
         end
 
