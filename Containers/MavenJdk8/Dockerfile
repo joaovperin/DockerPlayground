@@ -17,6 +17,7 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
 # Set some environment
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
+COPY settings-docker.xml /usr/share/maven/ref/
 
 # Updates system and installs dos2unix to allow script editing on Windows
 RUN apt-get update && apt-get install dos2unix
@@ -26,7 +27,19 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
 
 # Convert line endings
-RUN dos2unix /usr/local/bin/docker-entrypoint.sh
+RUN dos2unix /usr/local/bin/docker-entrypoint.sh /usr/share/maven/ref/settings-docker.xml
+
+# Add poms to cache dependencies
+RUN mkdir /mvn_pom_cache
+COPY poms /mvn_pom_cache
+
+# Convert line endings of all poms
+RUN find /mvn_pom_cache -type f -iname 'pom.xml' -exec dos2unix {} \; 
+
+# Cache all dependencies
+RUN find /mvn_pom_cache -type f -iname 'pom.xml' -exec mvn -B clean install -DskipTests -Djacoco.skip \ 
+    -Dcheckstyle.skip -Dasciidoctor.skip -Dmaven.gitcommitid.skip -Dspring-boot.repackage.skip -Dmaven.exec.skip=true \ 
+    -Dmaven.install.skip -Dmaven.resources.skip --fail-never -f {} \;
 
 # Defines the entrypoint and the build command as default
 ENTRYPOINT ["docker-entrypoint.sh"]
